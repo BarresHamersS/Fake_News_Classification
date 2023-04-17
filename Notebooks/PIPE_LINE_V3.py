@@ -61,7 +61,6 @@ def VADER_score(text):
     
     return vader_scores
     
-
 def process_text(text):
     doc = nlp(text)
 
@@ -77,6 +76,8 @@ def process_text(text):
     vader_neu = vader_scores['neu']
     vader_pos = vader_scores['pos']
     vader_compound = vader_scores['compound']
+
+
     
     return flesch_kincaid_reading_ease, compressed_size, vader_neg, vader_neu, vader_pos, vader_compound
 
