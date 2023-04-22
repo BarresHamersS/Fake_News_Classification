@@ -1,9 +1,10 @@
-#   ███████  █████  ██   ██ ███████     ███    ██ ███████ ██     ██ ███████     ██      ██ ███    ██  ██████  ██    ██ ██ ███████ ████████ ██  ██████     ██      ██ ██████  ██████   █████  ██████  ██    ██ 
-#   ██      ██   ██ ██  ██  ██          ████   ██ ██      ██     ██ ██          ██      ██ ████   ██ ██       ██    ██ ██ ██         ██    ██ ██          ██      ██ ██   ██ ██   ██ ██   ██ ██   ██  ██  ██  
-#   █████   ███████ █████   █████       ██ ██  ██ █████   ██  █  ██ ███████     ██      ██ ██ ██  ██ ██   ███ ██    ██ ██ ███████    ██    ██ ██          ██      ██ ██████  ██████  ███████ ██████    ████   
-#   ██      ██   ██ ██  ██  ██          ██  ██ ██ ██      ██ ███ ██      ██     ██      ██ ██  ██ ██ ██    ██ ██    ██ ██      ██    ██    ██ ██          ██      ██ ██   ██ ██   ██ ██   ██ ██   ██    ██    
-#   ██      ██   ██ ██   ██ ███████     ██   ████ ███████  ███ ███  ███████     ███████ ██ ██   ████  ██████   ██████  ██ ███████    ██    ██  ██████     ███████ ██ ██████  ██   ██ ██   ██ ██   ██    ██  
-
+#   ███████  █████  ██   ██ ██    ██     ██      ██ ██████  ██████   █████  ██████  ██    ██ 
+#   ██      ██   ██ ██  ██   ██  ██      ██      ██ ██   ██ ██   ██ ██   ██ ██   ██  ██  ██  
+#   █████   ███████ █████     ████       ██      ██ ██████  ██████  ███████ ██████    ████   
+#   ██      ██   ██ ██  ██     ██        ██      ██ ██   ██ ██   ██ ██   ██ ██   ██    ██    
+#   ██      ██   ██ ██   ██    ██        ███████ ██ ██████  ██   ██ ██   ██ ██   ██    ██    
+                                                                                         
+                                                                                         
 import pandas as pd 
 import numpy as np
 import sys
@@ -23,14 +24,24 @@ nltk.download('vader_lexicon')
 nlp = spacy.load('en_core_web_md')
 
 
-# This function computes the FKE readability of a object with the build in spaCy functionality
+
+
+'''
+ to add basic info
+'''
 def readability_computation(doc):
     read = Readability()
     flesch_kincaid_reading_ease = doc._.flesch_kincaid_reading_ease
-
     return doc
 
 nlp.add_pipe(readability_computation, last=True)
+
+# This function applies the Readability, compressed size and vader scores and applies them to a given pandas dataframe    
+def process_text_readability(text):
+    doc = nlp(text)
+    doc = readability_computation(doc)
+    flesch_kincaid_reading_ease = doc._.flesch_kincaid_reading_ease
+    return flesch_kincaid_reading_ease
 
 # This function computes the compressed size of the string, this is the approximation of the kolmogorov complexity
 Doc.set_extension('compressed_size', default=None,force=True)
@@ -39,11 +50,32 @@ def compress_doc(doc):
     compressed_data = gzip.compress(serialized_doc)
     compressed_size = sys.getsizeof(compressed_data)
     doc._.compressed_size = compressed_size
-
     return doc
 
 nlp.add_pipe(compress_doc, last=True)
 
+# This function computes the compressed size of the string, this is the approximation of the kolmogorov complexity
+
+def process_text_complexity(text):
+    doc = nlp(text)
+    doc = compress_doc(doc)
+    compressed_size = doc._.compressed_size
+    return compressed_size
+
+# This functions computes the different VADER scores and makes use of the NLTK library
+def VADER_score(text):
+    analyzer = SentimentIntensityAnalyzer()
+    doc = nlp(text)
+    vader_scores = analyzer.polarity_scores(text)
+    return vader_scores
+
+def process_text_vader(text):
+    vader_scores = VADER_score(text)
+    vader_neg = vader_scores['neg']
+    vader_neu = vader_scores['neu']
+    vader_pos = vader_scores['pos']
+    vader_compound = vader_scores['compound']
+    return vader_neg, vader_neu, vader_pos, vader_compound  
 
 # This function counts the Named Entities in the text
 def count_named_entities(text):
@@ -87,7 +119,7 @@ def count_pos(text):
 
 pos_tags = ['ADJ', 'ADP', 'ADV', 'AUX', 'CCONJ', 'DET', 'INTJ', 'NOUN',
             'NUM', 'PART', 'PRON', 'PROPN', 'PUNCT', 'SCONJ', 'SYM', 'VERB', 'X']
-def create_input_vector(pos_count_dict, tags):
+def create_input_vector_pos(pos_count_dict):
     input_vector = np.zeros(len(pos_tags))
     for i, tag in enumerate(pos_tags):
         if tag in pos_count_dict:
@@ -97,33 +129,7 @@ def create_input_vector(pos_count_dict, tags):
 ############################
 
 
-# This functions computes the different VADER scores and makes use of the NLTK library
-def VADER_score(text):
-    analyzer = SentimentIntensityAnalyzer()
-    doc = nlp(text)
-    vader_scores = analyzer.polarity_scores(text)
-    return vader_scores
 
-
-# This function applies the Readability, compressed size and vader scores and applies them to a given pandas dataframe    
-def process_text(text):
-    doc = nlp(text)
-
-    doc = readability_computation(doc)
-    flesch_kincaid_reading_ease = doc._.flesch_kincaid_reading_ease
-
-    doc = compress_doc(doc)
-    compressed_size = doc._.compressed_size
-    
-
-    vader_scores = VADER_score(text)
-    vader_neg = vader_scores['neg']
-    vader_neu = vader_scores['neu']
-    vader_pos = vader_scores['pos']
-    vader_compound = vader_scores['compound']
-
-
-    return flesch_kincaid_reading_ease, compressed_size, vader_neg, vader_neu, vader_pos, vader_compound  
 
 #                               #
 # Stastical functions           #   
