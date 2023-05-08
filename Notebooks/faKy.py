@@ -10,10 +10,12 @@ import numpy as np
 import sys
 import gzip
 import spacy
-from spacy.tokens import Doc, Span
+from spacy.tokens import Doc
 from spacy_readability import Readability
 import nltk
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+import statistics
+
 
 
 nltk.download('vader_lexicon')
@@ -191,12 +193,6 @@ def values_by_label(df, feature, labels, df_label):
 This function takes a list of numerical values as input and returns its mode, mean, standard deviation, and median as a tuple. 
 The mode is calculated using the statistics module, while the mean, standard deviation, and median are calculated using numpy.
 '''
-def compute_statistics(list):
-    mo = np.mode(list)
-    mu = np.mean(list)
-    sigma = np.std(list)
-    me = np.median(list)
-    return mo, mu, sigma, me
 
 '''
 The dunn_table function takes a DataFrame of Dunn's test results and creates a new DataFrame where each row represents a group and each column represents a pairwise comparison with another group. 
