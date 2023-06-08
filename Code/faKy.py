@@ -1,10 +1,3 @@
-#   ███████  █████  ██   ██ ██    ██     ██      ██ ██████  ██████   █████  ██████  ██    ██ 
-#   ██      ██   ██ ██  ██   ██  ██      ██      ██ ██   ██ ██   ██ ██   ██ ██   ██  ██  ██  
-#   █████   ███████ █████     ████       ██      ██ ██████  ██████  ███████ ██████    ████   
-#   ██      ██   ██ ██  ██     ██        ██      ██ ██   ██ ██   ██ ██   ██ ██   ██    ██    
-#   ██      ██   ██ ██   ██    ██        ███████ ██ ██████  ██   ██ ██   ██ ██   ██    ██    
-                                                                                         
-                                                                                         
 import pandas as pd 
 import numpy as np
 import sys
@@ -14,7 +7,6 @@ from spacy.tokens import Doc
 from spacy_readability import Readability
 import nltk
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-import statistics
 
 
 
